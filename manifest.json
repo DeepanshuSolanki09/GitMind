@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "GitHub Codebase Explainer",
+  "version": "1.0",
+  "description": "Analyzes the root directory structure of any GitHub repository and generates a concise architecture overview and reading guide using Gemini.",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://api.github.com/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

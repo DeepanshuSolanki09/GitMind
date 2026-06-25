@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Codebase Explainer</title>
+  <style>
+    /* Premium Modern Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.01);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    :root {
+      --bg-gradient: radial-gradient(circle at top, #141416 0%, #08080a 100%);
+      --panel-bg: #0d0d10;
+      --panel-border: rgba(255, 255, 255, 0.05);
+      --accent-gradient: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+      --accent-hover: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+      --text-primary: #ffffff;
+      --text-secondary: #9ca3af;
+      --text-muted: #4b5563;
+      --success-glow: 0 0 12px rgba(16, 185, 129, 0.25);
+      --error-glow: 0 0 12px rgba(239, 68, 68, 0.25);
+      --accent-glow: 0 4px 20px rgba(255, 255, 255, 0.08);
+      --card-bg: #121216;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      width: 380px;
+      min-height: 480px;
+      max-height: 600px;
+      background: var(--bg-gradient);
+      color: var(--text-primary);
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Premium Obsidian Panel */
+    .glass-panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 4px;
+    }
+
+    .header svg {
+      width: 28px;
+      height: 28px;
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.25));
+    }
+
+    .header-text h1 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(120deg, #ffffff, #a1a1aa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-text p {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    /* Section Headings */
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.75px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* API Key Container */
+    .api-key-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      background: #070709;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      padding: 10px 40px 10px 12px;
+      color: var(--text-primary);
+      font-size: 12px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .input-wrapper input:focus {
+      border-color: #ffffff;
+      box-shadow: 0 0 0 1px #ffffff;
+    }
+
+    .input-wrapper input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .toggle-visibility {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      border-radius: 4px;
+      transition: color 0.2s;
+    }
+
+    .toggle-visibility:hover {
+      color: var(--text-primary);
+    }
+
+    .btn-save {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #e5e7eb;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-save:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+      color: var(--text-primary);
+    }
+
+    .btn-save:active {
+      transform: scale(0.98);
+    }
+
+    /* Repo Status Card */
+    .status-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      border-left: 3px solid var(--text-muted);
+      padding: 10px 12px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text-secondary);
+      transition: all 0.3s ease;
+    }
+
+    .status-card.detected {
+      border-left-color: #10b981;
+      background: rgba(16, 185, 129, 0.02);
+    }
+
+    .status-card.error-state {
+      border-left-color: #ef4444;
+      background: rgba(239, 68, 68, 0.02);
+    }
+
+    .repo-name {
+      font-weight: 700;
+      color: var(--text-primary);
+      word-break: break-all;
+    }
+
+    /* Premium White-on-Black Action Button */
+    .btn-analyze {
+      width: 100%;
+      background: var(--accent-gradient);
+      border: none;
+      border-radius: 8px;
+      color: #000000;
+      padding: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--accent-glow);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-analyze:hover:not(:disabled) {
+      background: var(--accent-hover);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .btn-analyze:active:not(:disabled) {
+      transform: translateY(1px) scale(0.99);
+    }
+
+    .btn-analyze:disabled {
+      background: #16161a;
+      color: var(--text-muted);
+      box-shadow: none;
+      cursor: not-allowed;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    /* Loading Spinner State */
+    .loader-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 24px 0;
+    }
+
+    .spinner-ring {
+      width: 36px;
+      height: 36px;
+      border: 3px solid rgba(255, 255, 255, 0.05);
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: spin 1s cubic-bezier(0.55, 0.085, 0.68, 0.53) infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loader-text {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      text-align: center;
+    }
+
+    /* Results Panel */
+    .results-panel {
+      display: none;
+      animation: fadeInUp 0.4s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .results-content {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-primary);
+      max-height: 360px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    /* Formatted Markdown Styles */
+    .results-content h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #e5e7eb;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 4px;
+    }
+    .results-content h3:first-of-type {
+      margin-top: 0;
+    }
+
+    .results-content p {
+      margin-bottom: 10px;
+      color: #d1d5db;
+    }
+
+    .results-content ul, .results-content ol {
+      margin-left: 18px;
+      margin-bottom: 12px;
+    }
+
+    .results-content li {
+      margin-bottom: 6px;
+      color: #d1d5db;
+    }
+
+    .results-content code {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 12px;
+      color: #f3f4f6;
+    }
+
+    .results-content strong {
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    /* Tabbed Navigation Layout Styles */
+    .tab-nav {
+      display: flex;
+      border-bottom: 1px solid var(--panel-border);
+      padding-bottom: 0;
+      gap: 12px;
+      margin-bottom: 2px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 8px 1px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+      color: var(--text-primary);
+      border-bottom-color: #ffffff;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active-content {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Explorer Styles */
+    .explorer-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+      color: #d1d5db;
+      text-decoration: none;
+    }
+
+    .explorer-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .explorer-item.folder {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .explorer-item.file {
+      padding-left: 20px;
+    }
+
+    /* Chat Elements */
+    .chat-bubble {
+      max-width: 85%;
+      padding: 8px 12px;
+      border-radius: 12px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .chat-bubble.user {
+      align-self: flex-end;
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-bubble.ai {
+      align-self: flex-start;
+      background: #111114;
+      border: 1px solid var(--panel-border);
+      color: #d1d5db;
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-bubble.ai h3 {
+      font-size: 12px;
+      color: #ffffff;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+    
+    .chat-bubble.ai h3:first-of-type {
+      margin-top: 0;
+    }
+
+    .chat-bubble.ai ul {
+      margin-left: 14px;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+
+    .chat-bubble.ai li {
+      margin-bottom: 2px;
+    }
+
+    .chat-bubble.ai code {
+      background: rgba(255, 255, 255, 0.06);
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 11px;
+    }
+
+    /* Footer / API selector */
+    .footer {
+      text-align: center;
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="glass-panel header">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="url(#grad)" />
+      <path d="M2 17L12 22L22 17" stroke="url(#grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M2 12L12 17L22 12" stroke="url(#grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <defs>
+        <linearGradient id="grad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#ffffff" />
+          <stop offset="1" stop-color="#4b5563" />
+        </linearGradient>
+      </defs>
+    </svg>
+    <div class="header-text">
+      <h1>GitMind Explainer</h1>
+      <p>AI-Powered Codebase Architecture Assistant</p>
+    </div>
+  </div>
+
+  <!-- API Key Panel -->
+  <div class="glass-panel api-key-container">
+    <div class="section-title">
+      <span>AI Setup Controls</span>
+      <span id="key-status" style="color: var(--text-muted); text-transform: none; font-weight: normal;">Not Saved</span>
+    </div>
+    
+    <!-- Gemini API Key input -->
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <label for="api-key-input" style="font-size: 10px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase;">Gemini API Key</label>
+      <div class="input-wrapper">
+        <input type="password" id="api-key-input" placeholder="Enter Gemini API Key" />
+        <button class="toggle-visibility" id="toggle-key-btn" title="Toggle visibility">
+          <svg id="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- GitHub PAT Token Input -->
+    <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 2px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <label for="pat-input" style="font-size: 10px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase;">GitHub Token (PAT)</label>
+        <span id="pat-status" style="font-size: 9px; color: var(--text-muted);">Not Saved</span>
+      </div>
+      <div class="input-wrapper">
+        <input type="password" id="pat-input" placeholder="Token for Private Repos" />
+        <button class="toggle-visibility" id="toggle-pat-btn" title="Toggle visibility">
+          <svg id="eye-icon-pat" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Model selection drop down -->
+    <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 2px;">
+      <label for="model-select" style="font-size: 10px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase;">Select Gemini Model</label>
+      <select id="model-select" style="width: 100%; background: #070709; border: 1px solid var(--panel-border); border-radius: 8px; padding: 8px 10px; color: var(--text-primary); font-size: 12px; outline: none; transition: all 0.3s ease; cursor: pointer;">
+        <option value="gemini-3.5-flash" selected>Gemini 3.5 Flash (Recommended)</option>
+        <option value="gemini-2.5-pro">Gemini 2.5 Pro (Deep Analysis)</option>
+        <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite (Lightweight)</option>
+      </select>
+    </div>
+
+    <button class="btn-save" id="save-key-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+        <polyline points="7 3 7 8 15 8"></polyline>
+      </svg>
+      Save Keys & Tokens
+    </button>
+  </div>
+
+  <!-- Detection Status & Languages Dashboard -->
+  <div class="glass-panel" style="display: flex; flex-direction: column; gap: 12px;">
+    <div class="section-title">Target Repository</div>
+    <div class="status-card" id="status-card">
+      Detecting active tab...
+    </div>
+    
+    <!-- Languages Bar (Dashboard) -->
+    <div id="languages-dashboard" style="display: none; flex-direction: column; gap: 6px;">
+      <div id="languages-bar" style="display: flex; height: 8px; width: 100%; border-radius: 4px; overflow: hidden; background: #1a1a1a;">
+        <!-- Injected dynamic bars -->
+      </div>
+      <div id="languages-list" style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 10px; color: var(--text-secondary);">
+        <!-- Injected labels -->
+      </div>
+    </div>
+
+    <button class="btn-analyze" id="analyze-btn" disabled>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+      </svg>
+      Analyze Repo Structure
+    </button>
+  </div>
+
+  <!-- Tab Navigation Bar -->
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" id="tab-btn-pr" data-tab="pr" style="display: none;">PR Review</button>
+    <button class="tab-btn" id="tab-btn-issue" data-tab="issue" style="display: none;">Issue Solver</button>
+    <button class="tab-btn" data-tab="explorer">Explorer</button>
+    <button class="tab-btn" data-tab="chat">Code Chat</button>
+  </div>
+
+  <!-- Tab 1: Overview Panel -->
+  <div id="tab-overview" class="tab-content active-content">
+    <!-- Loading View -->
+    <div class="glass-panel loader-container" id="loader">
+      <div class="spinner-ring"></div>
+      <div class="loader-text" id="loader-text">Analyzing repo contents...</div>
+    </div>
+
+    <!-- Results Panel -->
+    <div class="glass-panel results-panel" id="results-panel">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; width: 100%;">
+        <div class="section-title" style="margin-bottom: 0;">Architecture Analysis</div>
+        <button id="export-guide-btn" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; padding: 4px 8px; color: #ffffff; font-size: 10px; font-weight: 600; cursor: pointer; display: none; align-items: center; gap: 4px; outline: none;">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Export Guide
+        </button>
+      </div>
+      <div class="results-content" id="results-content">
+        <div style="color: var(--text-secondary); text-align: center; padding: 24px 0; font-style: italic;">
+          Click "Analyze Repo Structure" above to generate a complete codebase summary.
+        </div>
+      </div>
+      
+      <!-- Commits summary card (inserted dynamically) -->
+      <div id="commits-summary-panel" style="display: none; border-top: 1px solid var(--panel-border); margin-top: 12px; padding-top: 12px; flex-direction: column; gap: 6px;">
+        <div class="section-title">Recent Commit Activity Summarized</div>
+        <div id="commits-summary-content" style="font-size: 12px; color: #d1d5db; line-height: 1.5;">
+          Loading commits summaries...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: PR Review Panel (Page specific) -->
+  <div id="tab-pr" class="tab-content">
+    <div class="glass-panel" style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="section-title">Pull Request Code Review</div>
+      <div id="pr-info" style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+        Pull Request page detected. Run analyze to review modifications.
+      </div>
+      <div id="pr-review-container" class="results-content" style="max-height: 350px; overflow-y: auto;">
+        <div style="color: var(--text-secondary); text-align: center; padding: 24px 0; font-style: italic;">
+          No PR analysis run yet. Click "Analyze Repo Structure".
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 3: Issue Solver Panel (Page specific) -->
+  <div id="tab-issue" class="tab-content">
+    <div class="glass-panel" style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="section-title">AI Issue Fix Recommender</div>
+      <div id="issue-info" style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+        Issue page detected. Run analyze to suggest file patches.
+      </div>
+      <div id="issue-solve-container" class="results-content" style="max-height: 350px; overflow-y: auto;">
+        <div style="color: var(--text-secondary); text-align: center; padding: 24px 0; font-style: italic;">
+          No Issue solution run yet. Click "Analyze Repo Structure".
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 4: Explorer Panel -->
+  <div id="tab-explorer" class="tab-content">
+    <div class="glass-panel" style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="section-title">Nested File Explorer</div>
+      <div id="explorer-info" style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+        Analyze the repository first to load its folder tree. Click files below to run Gemini file summaries.
+      </div>
+      <div id="explorer-tree" style="max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding-right: 4px;">
+        <div style="color: var(--text-muted); font-style: italic; font-size: 12px; padding: 12px 0;">No structure loaded yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 5: Code Chat Panel -->
+  <div id="tab-chat" class="tab-content">
+    <div class="glass-panel" style="display: flex; flex-direction: column; gap: 10px; height: 380px;">
+      <div class="section-title">Q&A Chat Assistant</div>
+      
+      <!-- Messages List -->
+      <div id="chat-messages" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; max-height: 280px;">
+        <div style="color: var(--text-muted); font-style: italic; text-align: center; margin-top: auto; margin-bottom: auto; font-size: 12px; padding: 0 16px; line-height: 1.4;">
+          Please run a repository analysis first to provide context for the Q&A bot.
+        </div>
+      </div>
+      
+      <!-- Chat Input Interface -->
+      <div id="chat-input-container" style="display: flex; gap: 8px; border-top: 1px solid var(--panel-border); padding-top: 8px;">
+        <input type="text" id="chat-input" placeholder="Ask a question about the code..." disabled style="flex-grow: 1; background: #070709; border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px; color: var(--text-primary); font-size: 12px; outline: none;" />
+        <button id="chat-send-btn" disabled style="background: #ffffff; border: none; border-radius: 8px; color: #000000; padding: 10px 14px; font-weight: 700; font-size: 12px; cursor: pointer; transition: opacity 0.2s;">
+          Ask
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- File Inspector Modal Overlay Popup -->
+  <div id="file-inspector-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); align-items: center; justify-content: center; z-index: 1000; padding: 16px;">
+    <div class="glass-panel" style="width: 100%; max-width: 340px; background: #0e0e11; border: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 8px;">
+        <span id="inspector-file-name" style="font-size: 12px; font-weight: 700; color: #ffffff; word-break: break-all; max-width: 270px;">File Name</span>
+        <button id="inspector-close-btn" style="background: none; border: none; color: var(--text-secondary); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 2px; outline: none;">✕</button>
+      </div>
+      <div id="inspector-loader" style="display: none; align-items: center; justify-content: center; flex-direction: column; gap: 8px; padding: 20px 0;">
+        <div class="spinner-ring" style="width: 24px; height: 24px; border-top-color: #ffffff;"></div>
+        <span style="font-size: 11px; color: var(--text-secondary);">Analyzing file content...</span>
+      </div>
+      <div id="inspector-content" style="max-height: 220px; overflow-y: auto; font-size: 12px; line-height: 1.5; color: #d1d5db; padding-right: 4px;">
+        <!-- Summary results injected here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    Powered by Gemini AI • Runs completely in-browser
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
